@@ -1,6 +1,9 @@
 import * as Yup from 'yup';
 import User from '../models/User';
 
+import RegisterMail from '../jobs/RegisterMail';
+import Queue from '../../lib/Queue';
+
 class UserController {
   async store(req, res) {
     const schema = Yup.object().shape({
@@ -17,13 +20,23 @@ class UserController {
       return res.status(400).json({ error: 'Validation failed' });
     }
 
-    const userExists = await User.findOne({ where: { email: req.body.email } });
+    const userExists = await User.findOne({
+      where: { email: req.body.email },
+    });
 
     if (userExists) {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    const { id, name, email, coordinator } = await User.create(req.body);
+    const user = await User.create(req.body);
+
+    const { id, name, email, coordinator } = user;
+
+    if (!coordinator) {
+      await Queue.add(RegisterMail.key, {
+        user,
+      });
+    }
 
     return res.json({
       id,
