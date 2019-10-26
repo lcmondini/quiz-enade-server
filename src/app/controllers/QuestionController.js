@@ -97,12 +97,12 @@ class QuestionController {
   }
 
   async index(req, res) {
-    const { page = 1 } = req.body;
+    const { page = 1, limit = 10 } = req.body;
 
     const questions = await Question.findAll({
       where: { course: req.body.course },
       attributes: ['id', 'course', 'description', 'correct_answer'],
-      limit: 10,
+      limit,
       offset: (page - 1) * 10,
     });
 
