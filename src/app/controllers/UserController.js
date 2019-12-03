@@ -1,4 +1,6 @@
 import * as Yup from 'yup';
+import Sequelize from 'sequelize';
+
 import User from '../models/User';
 import File from '../models/File';
 
@@ -32,7 +34,7 @@ class UserController {
 
     const user = await User.create(req.body);
 
-    const { id, name, email, coordinator } = user;
+    const { id, name, course, email, coordinator, level, points } = user;
 
     if (!coordinator) {
       await Queue.add(RegisterMail.key, {
@@ -43,8 +45,11 @@ class UserController {
     return res.json({
       id,
       name,
+      course,
       email,
       coordinator,
+      level,
+      points,
     });
   }
 
@@ -89,7 +94,15 @@ class UserController {
 
     await user.update(req.body);
 
-    const { id, name, coordinator, avatar } = await User.findByPk(req.userId, {
+    const {
+      id,
+      name,
+      course,
+      coordinator,
+      avatar,
+      level,
+      points,
+    } = await User.findByPk(req.userId, {
       include: [
         {
           model: File,
@@ -102,10 +115,36 @@ class UserController {
     return res.json({
       id,
       name,
+      course,
       email,
       coordinator,
       avatar,
+      level,
+      points,
     });
+  }
+
+  async index(req, res) {
+    const { email, course } = req.query;
+
+    const users = await User.findAll({
+      where: { course },
+      attributes: [
+        'id',
+        'name',
+        'email',
+        'level',
+        'points',
+        [
+          Sequelize.literal('row_number() OVER (ORDER BY (points) DESC)'),
+          'ranking',
+        ],
+      ],
+      limit: 10,
+      order: [['level', 'DESC'], ['points', 'DESC']],
+    });
+
+    return res.json({ users });
   }
 }
 

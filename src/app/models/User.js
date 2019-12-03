@@ -18,6 +18,8 @@ class User extends Model {
         password_hash: Sequelize.STRING,
         coordinator: Sequelize.BOOLEAN,
         course: Sequelize.STRING,
+        level: Sequelize.INTEGER,
+        points: Sequelize.INTEGER,
       },
       {
         sequelize,

@@ -5,6 +5,7 @@ class Question extends Model {
     super.init(
       {
         course: Sequelize.STRING,
+        keyword: Sequelize.STRING,
         description: Sequelize.STRING,
         correct_answer: Sequelize.STRING,
         option_a: Sequelize.STRING,

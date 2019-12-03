@@ -15,6 +15,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      level: {
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
+        allowNull: false,
+      },
       points: {
         type: Sequelize.INTEGER,
         defaultValue: 0,

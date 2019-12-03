@@ -1,4 +1,6 @@
 import * as Yup from 'yup';
+import paginate from 'jw-paginate';
+import Sequelize from 'sequelize';
 
 import Question from '../models/Question';
 import User from '../models/User';
@@ -7,6 +9,7 @@ class QuestionController {
   async store(req, res) {
     const schema = Yup.object().shape({
       course: Yup.string().required(),
+      keyword: Yup.string().required(),
       description: Yup.string().required(),
       correct_answer: Yup.string().required(),
       option_a: Yup.string().required(),
@@ -51,6 +54,7 @@ class QuestionController {
   async update(req, res) {
     const schema = Yup.object().shape({
       course: Yup.string(),
+      keyword: Yup.string(),
       description: Yup.string(),
       correct_answer: Yup.string(),
       option_a: Yup.string(),
@@ -97,16 +101,58 @@ class QuestionController {
   }
 
   async index(req, res) {
-    const { page = 1, limit = 10, course = 'Ciência da Computação' } = req.body;
+    const { page = 1, limit = 10, quiz = 'false', id, course } = req.query;
+
+    let condition;
+    let attributes;
+    let order;
+
+    if (quiz === 'true') {
+      order = Sequelize.fn('RANDOM');
+    }
+
+    if (id == null) {
+      condition = { course };
+      attributes = [
+        'id',
+        'course',
+        'description',
+        'correct_answer',
+        'option_a',
+        'option_b',
+        'option_c',
+        'option_d',
+        'option_e',
+      ];
+    } else {
+      condition = { id, course };
+      attributes = [
+        'id',
+        'course',
+        'keyword',
+        'description',
+        'correct_answer',
+        'option_a',
+        'option_b',
+        'option_c',
+        'option_d',
+        'option_e',
+      ];
+    }
 
     const questions = await Question.findAll({
-      where: { course },
-      attributes: ['id', 'course', 'description', 'correct_answer'],
+      where: condition,
+      attributes,
       limit,
       offset: (page - 1) * 10,
+      order,
     });
 
-    return res.json(questions);
+    const size = Object.keys(questions).length;
+
+    const pagination = paginate(size, page, limit);
+
+    return res.json({ questions, size, pagination });
   }
 }
 
