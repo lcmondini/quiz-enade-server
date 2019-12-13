@@ -128,7 +128,7 @@ class UserController {
     const { email, course } = req.query;
 
     const users = await User.findAll({
-      where: { course },
+      where: { course, coordinator: false },
       attributes: [
         'id',
         'name',

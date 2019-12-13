@@ -22,27 +22,27 @@ module.exports = {
       },
       correct_answer: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       option_a: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       option_b: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       option_c: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       option_d: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       option_e: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       created_at: {
         type: Sequelize.DATE,

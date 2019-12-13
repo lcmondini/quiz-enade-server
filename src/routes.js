@@ -25,6 +25,7 @@ routes.get('/coordinators', CoordinatorController.index);
 routes.post('/questions', QuestionController.store);
 routes.get('/questions', QuestionController.index);
 routes.put('/questions', QuestionController.update);
+routes.delete('/questions/:id', QuestionController.delete);
 
 routes.post('/files', upload.single('file'), FileController.store);
 

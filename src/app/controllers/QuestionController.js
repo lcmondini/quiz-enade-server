@@ -7,6 +7,8 @@ import User from '../models/User';
 
 class QuestionController {
   async store(req, res) {
+    /** Validação dos dados está sendo feita no front-end
+    *
     const schema = Yup.object().shape({
       course: Yup.string().required(),
       keyword: Yup.string().required(),
@@ -22,6 +24,9 @@ class QuestionController {
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation failed' });
     }
+    */
+
+    console.log(req.body);
 
     const user = await User.findByPk(req.userId);
 
@@ -52,6 +57,8 @@ class QuestionController {
   }
 
   async update(req, res) {
+    /** Validação dos dados está sendo feita no front-end
+     *
     const schema = Yup.object().shape({
       course: Yup.string(),
       keyword: Yup.string(),
@@ -67,6 +74,7 @@ class QuestionController {
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation failed' });
     }
+    */
 
     const user = await User.findByPk(req.userId);
 
@@ -101,7 +109,14 @@ class QuestionController {
   }
 
   async index(req, res) {
-    const { page = 1, limit = 10, quiz = 'false', id, course } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      quiz = 'false',
+      id,
+      course,
+      keyword,
+    } = req.query;
 
     let condition;
     let attributes;
@@ -112,10 +127,15 @@ class QuestionController {
     }
 
     if (id == null) {
-      condition = { course };
+      if (keyword == null || keyword === '') {
+        condition = { course };
+      } else {
+        condition = { course, keyword };
+      }
       attributes = [
         'id',
         'course',
+        'keyword',
         'description',
         'correct_answer',
         'option_a',
@@ -148,11 +168,22 @@ class QuestionController {
       order,
     });
 
-    const size = Object.keys(questions).length;
+    const allQuestions = await Question.findAll({
+      where: condition,
+      order,
+    });
+
+    const size = Object.keys(allQuestions).length;
 
     const pagination = paginate(size, page, limit);
 
     return res.json({ questions, size, pagination });
+  }
+
+  async delete(req, res) {
+    const question = await Question.destroy({ where: { id: req.params.id } });
+
+    return res.json(question);
   }
 }
 
