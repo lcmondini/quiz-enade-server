@@ -26,8 +26,6 @@ class QuestionController {
     }
     */
 
-    console.log(req.body);
-
     const user = await User.findByPk(req.userId);
 
     if (!user.coordinator) {
