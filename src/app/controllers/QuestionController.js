@@ -4,6 +4,7 @@ import Sequelize from 'sequelize';
 
 import Question from '../models/Question';
 import User from '../models/User';
+import File from '../models/File';
 
 class QuestionController {
   async store(req, res) {
@@ -42,15 +43,29 @@ class QuestionController {
       return res.status(400).json({ error: 'Question already exists' });
     }
 
-    const { id, course, description, correct_answer } = await Question.create(
-      req.body
-    );
+    const { id } = await Question.create(req.body);
+
+    const {
+      course,
+      description,
+      correct_answer,
+      image,
+    } = await Question.findByPk(id, {
+      include: [
+        {
+          model: File,
+          as: 'image',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
+    });
 
     return res.json({
       id,
       course,
       description,
       correct_answer,
+      image,
     });
   }
 
@@ -96,13 +111,27 @@ class QuestionController {
       }
     }
 
-    const { course, correct_answer } = await question.update(req.body);
+    await question.update(req.body);
+
+    const { course, correct_answer, image } = await Question.findByPk(
+      req.body.id,
+      {
+        include: [
+          {
+            model: File,
+            as: 'image',
+            attributes: ['id', 'path', 'url'],
+          },
+        ],
+      }
+    );
 
     return res.json({
       id,
       course,
       description,
       correct_answer,
+      image,
     });
   }
 
@@ -164,6 +193,13 @@ class QuestionController {
       limit,
       offset: (page - 1) * 10,
       order,
+      include: [
+        {
+          model: File,
+          as: 'image',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
     });
 
     const allQuestions = await Question.findAll({

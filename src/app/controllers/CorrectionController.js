@@ -15,6 +15,8 @@ class CorrectionController {
       user_name: Yup.string().required(),
     });
 
+    console.log(req);
+
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation failed' });
     }
